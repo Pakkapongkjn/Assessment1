@@ -1,0 +1,34 @@
+---
+title: "Assessment 1"
+author: "Pakkapong s4658734"
+date: '2022-03-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R MarkDown Editing
+
+___R Markdown is a file format for making dynamic documents with R. An R Markdown document is written in markdown (an easy-to-write plain text format) and contains chunks of embedded R code___
+
+Resource: https://rmarkdown.rstudio.com/lesson-8.html
+
+## LOAD Packages & Dataset
+```{r}
+#install.packages("tidyverse")
+library(tidyverse)
+
+fastfood <- read_csv ("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-09-04/fastfood_calories.csv")
+
+head(fastfood, 10)
+
+library(knitr)
+
+kable(fastfood[1:10,1:5])
+
+
+
+```
+
