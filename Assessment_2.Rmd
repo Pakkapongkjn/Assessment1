@@ -1,0 +1,269 @@
+---
+title: "Assessment2"
+author: "Pakkapong s4658734"
+date: '2022-03-17'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## *Pakkapong Karnjanapatchara* **s4658734**
+
+-----------------------------------------------------------------
+
+# Assignment 2
+
+##Load Dataset
+
+```{r}
+
+library(tidyverse)
+
+thanksgiving_meal <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018/2018-11-20/thanksgiving_meals.csv")
+
+```
+
+**1. Display the first 10 rows of the dataset using `kable()` function (1 marks).**
+
+```{r}
+
+library(knitr)
+
+kable(thanksgiving_meal[1:10, ])
+      
+```
+
+
+**2. Using `skim()` display the summary of variables.**
+
+```{r}
+
+library(skimr)
+
+skim(thanksgiving_meal)
+
+```
+
+**Think about the task to predict a family income based on their menu: what variables may be useful? Are all of them correct type?  Write 2-3 sentences with your explanation. (2 marks)**
+
+To predict a family income based on their menu, the useful variables could be 'main_dish' which contains 8 different values and 'cranberry' which contains 4 types of value. The variety of different values could increase the accuracy of prediction.
+
+**Think about the task to predict a community type or US_region based on their menu: what variables may be useful? Are all of them correct type? (2 marks)**
+
+To predict a community type based on their menu, the useful variables could be 'cranberry' which contains 4 different values(Canned, Homemade, None, Other) and 'side1-15' which contains only 2 values in each variable. The different values of cranberry and the vegetables of side1-15 might have a significant to indicate the community type.
+
+**3. Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`(2 mark).**
+
+```{r}
+
+thanksgiving_meal <- thanksgiving_meal %>%
+  mutate(family_income = fct_reorder(family_income, parse_number(family_income)))
+
+class(thanksgiving_meal$family_income)
+
+
+```
+
+**4. What is the number of people who celebrate? (1 mark)**
+
+There are 980 people who celebrate.
+
+```{r}
+
+thanksgiving_meal %>%
+  count(celebrate) %>%
+  kable()
+
+```
+
+
+**5. What are categories and insights for each main dish served and the method it is prepared? (2 marks)**
+
+```{r}
+
+thanksgiving_meal %>%
+  summarise(main_dish, main_prep) %>%
+  count(main_dish, main_prep) %>%
+  kable()
+
+```
+
+For Chicken, the most popular methods are Baked(4) and Roasted(4). 
+
+For Ham/pork, the most popular method is Baked(22), following by Roasted(5).
+
+For Roastbeef, the most popuplar method is obviously Roasted(5).
+
+For Tofurkey, the most popular method is Baked(14) followed by Roasted(4).
+
+For Turkey, the most popular method is Baked(422) followed by Roasted(351).
+
+There is only one method for Turducken which is Roasted(3).
+
+**6. Create 3 different data viz showing insights for main dish served and the method. Provide your own legend and use themes. Write 2-3 sentences with your explanation of each insight. (4 marks)**
+
+```{r}
+
+thanksgiving_meal %>%
+  count(main_prep, main_dish) %>%
+  ggplot(aes(main_dish, n)) +
+  geom_col() +
+  facet_wrap(~main_prep) +
+  coord_flip() +
+  theme_bw() +
+  labs(title = "VIZ1 - Number of MAINDISH by Preparation Methods", x = "Menu", y = "n")
+```
+
+According to VIZ1, The most popular main dish is Turkey. The top 3 of preparation methods for Turkey include 1. Baked 2. Roasted 3. Fried
+
+```{r}
+thanksgiving_meal %>%
+  count(main_dish, main_prep, age) %>%
+  ggplot(aes(main_dish, n, fill = main_prep)) +
+  geom_col() +
+  facet_wrap(~age) +
+  coord_flip() +
+  theme_gray() +
+  labs(title = "VIZ2 - Distribution of Maindish & Method in the different ranges of age", fill = "Method", x = "MainDish", y = "n")
+```
+
+According to VIZ2, People in age between 45-59 consume the highest number of Ham/Pork. While, people in age of 60+ have the lowest number of Ham/Pork consumption. 
+
+```{r}
+thanksgiving_meal %>%
+  count(main_dish, main_prep, community_type) %>%
+  ggplot(aes(main_dish, n, fill = main_prep)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~community_type) +
+  labs(x = "MAINDISH", y = "n", fill = "Method", title = "VIZ3 - MainDish & MainPrep classified by Community type")
+
+
+```
+
+According to VIZ3, there is no significantly different consumption of Turkey and its cooking method among the different community types.
+
+The highest roasted beef consumption is in Urban area. The highest Baked Ham/Pork is in Sub-Urban area.
+
+**7. How many use cranberry sauce? How many use gravy? 2marks**
+
+There are 828 observations use cranberry sauce.
+
+There are 892 observations use gravy.
+
+```{r}
+
+thanksgiving_meal %>%
+  count(cranberry) %>%
+  kable()
+
+
+
+thanksgiving_meal %>%
+  count(gravy) %>%
+  kable()
+```
+
+
+**8-9. What is the distribution of those who celebrate across income ranges. Create a data viz. Write 2-3 sentences with your explanation of each insight. (4 marks)**
+
+```{r}
+
+thanksgiving_meal %>%
+  count(family_income, celebrate) %>%
+  ggplot(aes(family_income, n, fill = celebrate)) +
+  geom_col() +
+  facet_grid(~celebrate) +
+  coord_flip()
+
+
+```
+
+The highest number of people who celebrate have income range between '$25,000 to $49,999'. While, the lowest income range of people who celebrate is between '$17,000 to 199,999$'.
+
+The two highest number of people who do not celebrate have income range between '$0 to $9,999' and '$25,000 to $49,999'. While, the two lowest income ranges of people who do not celebrate are between '$125,000 to 149,999$' and '$175,000 to $199,999'.
+
+
+
+**10. Use the following code to create a new data set 2 mark. Write 2-3 sentences with your explanation of what it does. (4 marks)**
+
+```{r}
+thanksgiving_meal_new <- thanksgiving_meal %>%
+  select(id, starts_with("side"),
+       starts_with("pie"),
+       starts_with("dessert")) %>%
+  select(-side15, -pie13, -dessert12) %>%
+  gather(type, value, -id) %>%
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)")) %>%
+  mutate(type = str_remove(type, "\\d+"))
+```
+
+The code creates a new dataset that combine all variables of side(1-15), pie(1-13), and dessert(1-12) into one column. The code gathers type, id and also filter only usable value.
+
+**11-12. Intall package `widyr` and use `pairwise_cor()` function. Write 2-3 sentences with your explanation of what it does. (2 marks)** 
+
+The code does compute the Correlations of pairs of items. In this new dataset, the code shows the correlation of values of side, pie, dessert in descending order.
+
+**Write 1 sentence with your explanation of what insights it shows. (2 marks)**
+
+The pair that has the highest correlation (0.411) is Cookies and Brownies. The lowest correlation (-0.164) is the pair of Pumpkin and Macaroni and cheese.
+
+```{r}
+
+#install.packages('widyr')
+
+library(widyr)
+
+thanksgiving_meal_new %>%
+  pairwise_cor(value, id, sort = TRUE)
+
+
+```
+
+
+**13. Use `lm()` or randomForest() function to build a model that predict a family income based on data in the dataset. 8 marks**
+
+**Compare 3 models using different set of input variables. Use different number of variables. Explain your choice of variables (3 sentences).**
+
+To predict family income, There are 3 variables chosen as an input for the first model including main_dish, cranberry, and gender
+
+To predict family income, There are 4 variables chosen as an input for the second model including cranberry, community_type, gender, and age
+
+To predict family income, There are 7 variables chosen as an input for the third model including main_dish, main_prep, cranberry, age, gender, kid_table_age, and prayer 
+
+**Write 2 sentences explaining which model is best.**
+
+According to the results, it appears that the second model is the best out of 3 different models because it has the lowest error rate. The more variable doesn't always provide the better result.
+
+Assumption from model 2:
+
+Male might have more income than female.
+
+Homemade cranberry consumer might have less income than canned cranberry consumer.
+
+Old age might have more income than young age.
+
+Urban might have more income than Rural
+
+
+```{r}
+#install.packages("randomForest")
+
+library(randomForest)
+
+rf1 <- randomForest(family_income ~ main_dish + cranberry + gender, data = thanksgiving_meal, na.action = na.omit)
+
+print(rf1)
+
+rf2 <- randomForest(family_income ~ cranberry + community_type + gender + age, data = thanksgiving_meal, na.action = na.omit)
+
+print(rf2)
+
+rf3 <- randomForest(family_income ~ main_dish + main_prep + cranberry + age  + gender + kids_table_age + prayer, data = thanksgiving_meal, na.action = na.omit)
+
+print(rf3)
+```
+
